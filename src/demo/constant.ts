@@ -1,0 +1,66 @@
+export const NODES= [
+  {
+    zpid:'',
+    zid:'1',
+    zname:'状态监控',
+  },
+  {
+    zpid:'',
+    zid:'2',
+    zname:'设备控制',
+  },
+  {
+    zpid:'1',
+    zid:'3',
+    zchecked:true,
+    zname:'版本管理',
+  },
+  {
+    zpid:'1',
+    zid:'4',
+    zname:'设备状态监控',
+  },
+  {
+    zpid:'4',
+    zid:'7',
+    zname:'设备状态监控叶子',
+  },
+  {
+    zpid:'7',
+    zid:'8',
+    zname:'设备状态监控叶子-叶子',
+  },
+  {
+    zpid:'8',
+    zid:'10',
+    zname:'设备状态监控叶子-叶子-叶子',
+  },
+  {
+    zpid:'7',
+    zid:'9',
+    zname:'设备状态监控叶子-叶子',
+  },
+  {
+    zpid:'1',
+    zid:'5',
+    zname:'交易状态监控',
+  },
+  {
+    zpid:'2',
+    zid:'6',
+    zname:'设备控制叶子',
+  },
+]
+
+export const lazyloadNode=[
+  {
+    zpid:'',
+    zid:'1',
+    zname:'状态监控',
+  },
+  {
+    zpid:'',
+    zid:'2',
+    zname:'设备控制',
+  },
+]
