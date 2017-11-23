@@ -1,6 +1,10 @@
-import { Component, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ViewEncapsulation, ContentChild, TemplateRef, OnInit } from '@angular/core';
-import {ITreeState, TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
+import {
+  Component, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ViewEncapsulation, ContentChild, TemplateRef, OnInit,
+  forwardRef
+} from '@angular/core';
+import {TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
 import { NzTreeOptions } from './nz-tree.options';
+import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 @Component({
   selector: 'nz-tree',
@@ -18,7 +22,7 @@ import { NzTreeOptions } from './nz-tree.options';
     (copyNode)="fireEvent($event)"
     (loadNodeChildren)="repair($event)"
     (changeFilter)="fireEvent($event)"
-    (stateChange)="stateChange($event)"> <!--状态改变-->
+    (stateChange)="fireEvent($event)"> <!--状态改变-->
     <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
       <div
         [class.ant-tree-node]="true"
@@ -74,12 +78,17 @@ import { NzTreeOptions } from './nz-tree.options';
   </tree-root>
   `,
   encapsulation: ViewEncapsulation.None,
-  styleUrls: [ './nz-tree.component.css' ]
+  styleUrls: [ './nz-tree.component.css' ],
+  providers    : [
+    {
+      provide    : NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => NzTreeComponent),
+      multi      : true
+    }
+  ],
 })
 export class NzTreeComponent implements OnInit, OnChanges {
   _options: NzTreeOptions;
-  state: ITreeState;
-
 
   //数据源key定义，匹配任何数据
   @Input() nzNodeKeys:{}={};
@@ -110,12 +119,24 @@ export class NzTreeComponent implements OnInit, OnChanges {
 
   @ViewChild(TreeComponent) tree: TreeComponent;
 
-  get treeModel(): TreeModel {
-    return this.tree.treeModel;
+  constructor(){
+
   }
 
-  stateChange($event){
-    this.nzStateChange.emit($event)
+  stateValue: string;
+  @Output() stateChange = new EventEmitter();
+
+  @Input()
+  get state() {
+    return this.stateValue;
+  }
+  set state(val) {
+    this.stateValue = val;
+    this.stateChange.emit(this.stateValue);
+  }
+
+  get treeModel(): TreeModel {
+    return this.tree.treeModel;
   }
 
   toggleCheck(node: TreeNode) {
@@ -170,8 +191,8 @@ export class NzTreeComponent implements OnInit, OnChanges {
   }
 
   fireEvent(event: any) {
+    //
     const eventName = event && event.eventName;
-    debugger;
     if (eventName && typeof eventName === 'string') {
       const emitEventName = 'nz' + (eventName.charAt(0).toUpperCase() + eventName.slice(1));
       const emitObj = this[emitEventName];
@@ -307,6 +328,5 @@ export class NzTreeComponent implements OnInit, OnChanges {
       })
     }
     this.nzLoadNodeChildren.emit($event);
-    // this.fireEvent($event)
   }
 }
