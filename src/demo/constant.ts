@@ -10,9 +10,33 @@ export const NODES= [
     zname:'设备控制',
   },
   {
+    zpid:'',
+    zid:'11',
+    zname:'设备控制2',
+  },
+  {
+    zpid:'11',
+    zid:'12',
+    zname:'设备控制2-2',
+  },
+  {
+    zpid:'11',
+    zid:'13',
+    zname:'设备控制2-2',
+  },
+  {
+    zpid:'13',
+    zid:'14',
+    zname:'设备控制2-2',
+  },
+  {
+    zpid:'14',
+    zid:'15',
+    zname:'设备控制2-2',
+  },
+  {
     zpid:'1',
     zid:'3',
-    zchecked:true,
     zname:'版本管理',
   },
   {
@@ -33,6 +57,21 @@ export const NODES= [
   {
     zpid:'8',
     zid:'10',
+    zname:'设备状态监控叶子-叶子-叶子',
+  },
+  {
+    zpid:'10',
+    zid:'20',
+    zname:'设备状态监控叶子-叶子-叶子',
+  },
+  {
+    zpid:'20',
+    zid:'21',
+    zname:'设备状态监控叶子-叶子-叶子',
+  },
+  {
+    zpid:'21',
+    zid:'22',
     zname:'设备状态监控叶子-叶子-叶子',
   },
   {
@@ -63,4 +102,24 @@ export const lazyloadNode=[
     zid:'2',
     zname:'设备控制',
   },
+  {
+    zpid:'2',
+    zid:'3',
+    zname:'设备控制-1',
+  },
+  {
+    zpid:'2',
+    zid:'4',
+    zname:'设备控制-2',
+  },
+
 ]
+
+export const KEYS={
+  'pid':'zpid',
+  'id':'zid',
+  'name':'zname',
+  'checked':'zchecked',
+  'disableCheckbox':'zdisableCheckbox',
+};
+

@@ -1,11 +1,12 @@
 import { Component, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ViewEncapsulation, ContentChild, TemplateRef, OnInit } from '@angular/core';
-import { TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
+import {ITreeState, TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
 import { NzTreeOptions } from './nz-tree.options';
 
 @Component({
   selector: 'nz-tree',
   template: `
   <tree-root class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
+             [(state)]="state"
     (toggleExpanded)="fireEvent($event)"
     (activate)="fireEvent($event)"
     (deactivate)="fireEvent($event)"
@@ -17,7 +18,7 @@ import { NzTreeOptions } from './nz-tree.options';
     (copyNode)="fireEvent($event)"
     (loadNodeChildren)="repair($event)"
     (changeFilter)="fireEvent($event)"
-    (stateChange)="fireEvent($event)">
+    (stateChange)="stateChange($event)"> <!--状态改变-->
     <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
       <div
         [class.ant-tree-node]="true"
@@ -77,10 +78,13 @@ import { NzTreeOptions } from './nz-tree.options';
 })
 export class NzTreeComponent implements OnInit, OnChanges {
   _options: NzTreeOptions;
+  state: ITreeState;
+
 
   //数据源key定义，匹配任何数据
   @Input() nzNodeKeys:{}={};
   @Input() lazyLoad:boolean = false;
+  @Input() flag:boolean = false; // 是否是嵌套对象，默认值为false
 
   @Input() nzNodes: any[];
   @Input() nzCheckable = false;
@@ -110,6 +114,10 @@ export class NzTreeComponent implements OnInit, OnChanges {
     return this.tree.treeModel;
   }
 
+  stateChange($event){
+    this.nzStateChange.emit($event)
+  }
+
   toggleCheck(node: TreeNode) {
     if (node.data.disableCheckbox !== true) {
       node.data.checked = !node.data.checked;
@@ -120,7 +128,6 @@ export class NzTreeComponent implements OnInit, OnChanges {
   }
 
   private updateCheckState(node: TreeNode, checkIt: boolean) {
-    console.log(node.data.name,checkIt)
     const childLoop = (parentNode: TreeNode) => {
       if (!parentNode.children) return;
       for (const childNode of parentNode.children) {
@@ -164,6 +171,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
 
   fireEvent(event: any) {
     const eventName = event && event.eventName;
+    debugger;
     if (eventName && typeof eventName === 'string') {
       const emitEventName = 'nz' + (eventName.charAt(0).toUpperCase() + eventName.slice(1));
       const emitObj = this[emitEventName];
@@ -174,11 +182,12 @@ export class NzTreeComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     //如果和组件使用的默认key不一样
-    if(this.nzNodeKeys){
-      this.nzNodes = this.generateInnerNodes(this.nzNodes);
+    if(!this.flag){
+      if(this.nzNodeKeys){
+        this.nzNodes = this.generateInnerNodes(this.nzNodes);
+      }
+      this.nzNodes = this.generateNodes(this.nzNodes);
     }
-    this.nzNodes = this.generateNodes(this.nzNodes);
-    console.log('nzNodes', this.nzNodes);
   }
 
   /**
@@ -187,7 +196,6 @@ export class NzTreeComponent implements OnInit, OnChanges {
    * @param $event
    */
   initialized($event:any){
-    console.log("init",$event);
     const m = (node)=>{
       if(node.data.checked)
         this.updateCheckState(node,node.data.checked);
@@ -227,7 +235,6 @@ export class NzTreeComponent implements OnInit, OnChanges {
         'disableCheckbox':node[this.nzNodeKeys['disableCheckbox']],
       })
     })
-    console.log('xxx',tnodes);
     return tnodes;
   }
 

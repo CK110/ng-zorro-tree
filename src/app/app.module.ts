@@ -7,6 +7,7 @@ import {NgZorroAntdModule} from 'ng-zorro-antd';
 import {DemoBasicComponent} from '../demo/basic.component';
 import {DemoOneComponent} from '../demo/deme-one.component';
 import {NzTreeModule} from '../components/tree/nz-tree.module';
+import {NzTreeSelectModule} from '../components/select-tree/nz-tree-select.module';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,7 @@ import {NzTreeModule} from '../components/tree/nz-tree.module';
     BrowserAnimationsModule,
     NgZorroAntdModule.forRoot(),
     NzTreeModule,
-
+    NzTreeSelectModule
 
   ],
   providers: [],

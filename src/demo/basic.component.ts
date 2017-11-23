@@ -9,6 +9,7 @@ import {NODES} from './constant';
            [nzCheckable]="true"
            [nzShowLine]="true"
            [nzNodeKeys]="nodeKeys"
+           (nzActivate)="onEvent1($event)"
            (nzEvent)="onEvent($event)"></nz-tree>
   `
 })
@@ -20,10 +21,7 @@ export class DemoBasicComponent {
     'name':'zname',
     'checked':'zchecked',
     'disableCheckbox':'zdisableCheckbox',
-    'halfChecked':'zhalfChecked',
-    'hasChildren':'zhasChildren'
   };
-
   nodes = [];
 
   ngOnInit() {
@@ -33,5 +31,9 @@ export class DemoBasicComponent {
 
   onEvent(ev: any) {
     console.log('basic', 'onEvent', ev);
+  }
+
+  onEvent1(ev: any) {
+    console.log('basic222', 'onEvent', ev);
   }
 }
