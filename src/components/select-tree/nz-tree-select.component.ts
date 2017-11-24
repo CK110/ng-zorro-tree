@@ -1,8 +1,12 @@
-import {Component, ViewEncapsulation, OnInit, ViewChild, Input, ChangeDetectorRef, forwardRef, Output, EventEmitter} from '@angular/core';
+import {
+  Component, ViewEncapsulation, OnInit, ViewChild, Input, ChangeDetectorRef, forwardRef, Output, EventEmitter,
+  SimpleChanges
+} from '@angular/core';
 import {NzTreeComponent} from '../tree/nz-tree.component';
 import {DropDownAnimation} from 'ng-zorro-antd/src/core/animation/dropdown-animations';
-import {ITreeState} from 'angular-tree-component';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
+import {NzTreeOptions} from '../tree/nz-tree.options';
+import {ITreeState} from 'angular-tree-component';
 
 @Component({
   selector: 'nz-treeselect',
@@ -45,7 +49,19 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
            [@dropDownAnimation]="_dropDownPosition" >
         <div style="overflow: auto;">
           <div class="ant-select-dropdown-menu ant-select-dropdown-menu-vertical ant-select-dropdown-menu-root">
-            <nz-tree  [(state)]="stateValue" [nzNodes]="_treeData" [flag]="true" [nzCheckable]="true" [nzShowLine]="true" (nzEvent)="onEvent($event)"></nz-tree>
+            <nz-tree  
+              [(state)]="stateValue" 
+              [nzNodes]="_treeData" 
+              [nzFlag]="true" 
+              [nzCheckable]="true" 
+              [nzShowLine]="true"
+              [nzOptions]="nzOptions"
+              (nzEvent)="onEvent($event)"
+              (mmmmm)="mmm($event)" 
+              [nzLazyLoad]="nzLazyLoad"
+            >
+              
+            </nz-tree>
           </div>
         </div>
       </div>
@@ -67,17 +83,17 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 })
 export class NzTreeSelectComponent implements OnInit {
+
+  @Input() nzTreeData:any=[];
+  @Input() nzTreeKeys:any={};
+  @Input() nzLazyLoad:boolean = false;
+  @Input() nzOptions: NzTreeOptions;
+
   _isOpen= false;
   _dropDownPosition = 'bottom';
   _treeData:any=[];
   _triggerWidth = 0;
-
-  @Input() nzTreeData:any=[];
-  @Input() nzTreeKeys:any={};
-  @Input() lazyLoad:boolean = false;
-
   selectedNodes:any=[];
-
   @ViewChild(NzTreeComponent) tree: NzTreeComponent;
   @ViewChild('trigger') trigger;
 
@@ -85,8 +101,7 @@ export class NzTreeSelectComponent implements OnInit {
 
   }
 
-
-  stateValue: string;//组件状态
+  stateValue: ITreeState;//组件状态
   @Output() stateChange = new EventEmitter();
 
   @Input()
@@ -98,11 +113,6 @@ export class NzTreeSelectComponent implements OnInit {
     this.stateChange.emit(this.stateValue);
   }
 
-  // stateChange(state){
-  //   this._state = state;
-  //   console.log(state);
-  // }
-
   ngOnInit() {
     if(this.nzTreeKeys){
       this._treeData = this.generateInnerNodes(this.nzTreeData,this.nzTreeKeys);
@@ -111,6 +121,7 @@ export class NzTreeSelectComponent implements OnInit {
 
     this._setTriggerWidth();
   }
+
 
   /**
    * TODO
@@ -123,6 +134,7 @@ export class NzTreeSelectComponent implements OnInit {
   }
 
   onEvent(event) {
+    debugger;
     if(event.eventName=="check"){
       this.refreshSelectedNodes();
 
@@ -156,12 +168,8 @@ export class NzTreeSelectComponent implements OnInit {
   }
 
   _openTreeView(){
-    //
     this._isOpen =true;
-    // setTimeout(()=>{
-    //   if(this.tree)
-    //      this.tree._state = this._state;
-    // },50)
+    console.log(this.stateValue);
   }
 
   closeDropDown(){
@@ -175,6 +183,12 @@ export class NzTreeSelectComponent implements OnInit {
   _setTriggerWidth(): void {
     this._triggerWidth = this.trigger.nativeElement.getBoundingClientRect().width;
   }
+
+  mmm(event){
+    console.log(event);
+    this.stateValue= event;
+  }
+
 
   /**
    * 生成符合组件规定的key
@@ -211,7 +225,7 @@ export class NzTreeSelectComponent implements OnInit {
         targetNode['id'] = node.id;
         targetNode['name'] = node.name;
 
-        if(this.lazyLoad){
+        if(this.nzLazyLoad){
           targetNode['hasChildren'] = true;
         }
 
@@ -235,7 +249,7 @@ export class NzTreeSelectComponent implements OnInit {
           childNode['id'] = node.id;
           childNode['name'] = node.name;
 
-          if(this.lazyLoad){
+          if(this.nzLazyLoad){
             childNode['hasChildren'] = true;
           }
           childNode['checked'] = node.checked;

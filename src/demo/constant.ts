@@ -102,16 +102,16 @@ export const lazyloadNode=[
     zid:'2',
     zname:'设备控制',
   },
-  {
-    zpid:'2',
-    zid:'3',
-    zname:'设备控制-1',
-  },
-  {
-    zpid:'2',
-    zid:'4',
-    zname:'设备控制-2',
-  },
+  // {
+  //   zpid:'2',
+  //   zid:'3',
+  //   zname:'设备控制-1',
+  // },
+  // {
+  //   zpid:'2',
+  //   zid:'4',
+  //   zname:'设备控制-2',
+  // },
 
 ]
 
