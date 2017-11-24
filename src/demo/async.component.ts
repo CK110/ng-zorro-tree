@@ -10,7 +10,7 @@ import {lazyloadNode} from './constant';
            [nzCheckable]="true"
            [nzOptions]="options"
            [nzNodeKeys]="nodeKeys"
-           [lazyLoad]="true"
+           [nzLazyLoad]="true"
            (nzLoadNodeChildren)="onEvent1($event)"
            (nzEvent)="onEvent($event)"></nz-tree>
   `

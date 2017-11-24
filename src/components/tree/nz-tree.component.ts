@@ -2,14 +2,15 @@ import {
   Component, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ViewEncapsulation, ContentChild, TemplateRef, OnInit,
   forwardRef
 } from '@angular/core';
-import {TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
+import {ITreeState, TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
 import { NzTreeOptions } from './nz-tree.options';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 @Component({
   selector: 'nz-tree',
   template: `
-  <tree-root class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
+    {{nzLazyLoad}}
+  <tree-root *ngIf="!nzLazyLoad" class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
              [(state)]="state"
     (toggleExpanded)="fireEvent($event)"
     (activate)="fireEvent($event)"
@@ -76,6 +77,75 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
     </ng-template>
     <ng-template #loadingTemplate let-node let-index="index" let-templates="templates"></ng-template>
   </tree-root>
+  <!-- statechange 之后才触发 loadNodeChildren -->
+  <tree-root *ngIf="nzLazyLoad" class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
+               [state]="state"
+               (toggleExpanded)="fireEvent($event)"
+               (activate)="fireEvent($event)"
+               (deactivate)="fireEvent($event)"
+               (focus)="fireEvent($event)"
+               (blur)="fireEvent($event)"
+               (updateData)="fireEvent($event)"
+               (initialized)="initialized($event)"
+               (moveNode)="fireEvent($event)"
+               (copyNode)="fireEvent($event)"
+               (loadNodeChildren)="repair($event)"
+               (changeFilter)="fireEvent($event)"
+               (stateChange)="sc($event)"> <!--状态改变-->
+      <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
+        <div
+          [class.ant-tree-node]="true"
+          [class.ant-tree-node-expanded]="node.isExpanded && node.hasChildren"
+          [class.ant-tree-node-collapsed]="node.isCollapsed && node.hasChildren"
+          [class.ant-tree-node-leaf]="node.isLeaf"
+          [class.ant-tree-node-active]="node.isActive"
+          [class.ant-tree-node-focused]="node.isFocused">
+          <tree-node-drop-slot *ngIf="index === 0" [dropIndex]="node.index" [node]="node.parent"></tree-node-drop-slot>
+          <span
+            *ngIf="node.hasChildren"
+            [class.ant-tree-switcher_open]="node.isExpanded"
+            [class.ant-tree-switcher_close]="node.isCollapsed"
+            class="ant-tree-switcher"
+            (click)="node.mouseAction('expanderClick', $event)"></span>
+          <span
+            *ngIf="!node.hasChildren"
+            class="ant-tree-switcher ant-tree-switcher-noop">
+        </span>
+          <span *ngIf="nzCheckable"
+                class="ant-tree-checkbox"
+                [class.ant-tree-checkbox-checked]="node.data.checked"
+                [class.ant-tree-checkbox-disabled]="node.data.disableCheckbox"
+                [class.ant-tree-checkbox-indeterminate]="node.data.halfChecked"
+                (click)="toggleCheck(node)">
+          <span class="ant-tree-checkbox-inner"></span>
+        </span>
+          <span class="ant-tree-node-content-wrapper"
+                [class.ant-tree-node-selected]="node.isActive"
+                [class.ant-tree-node-content-wrapper-open]="node.isExpanded"
+                [class.ant-tree-node-content-wrapper-close]="node.isCollapsed"
+                (click)="node.mouseAction('click', $event)"
+                (dblclick)="node.mouseAction('dblClick', $event)"
+                (contextmenu)="node.mouseAction('contextMenu', $event)"
+                (treeDrop)="node.onDrop($event)"
+                (treeDropDragOver)="node.mouseAction('dragOver', $event)"
+                (treeDropDragLeave)="node.mouseAction('dragLeave', $event)"
+                (treeDropDragEnter)="node.mouseAction('dragEnter', $event)"
+                [treeAllowDrop]="node.allowDrop"
+                [treeDrag]="node"
+                [treeDragEnabled]="node.allowDrag()">
+          <span *ngIf="!nzTitle" class="ant-tree-title" [innerHTML]="node.displayField"></span>
+          <ng-container
+            [ngTemplateOutlet]="nzTitle"
+            [ngTemplateOutletContext]="{ node: node, index: index }">
+          </ng-container>
+        </span>
+          <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
+          <tree-node-drop-slot [dropIndex]="node.index + 1" [node]="node.parent"></tree-node-drop-slot>
+        </div>
+      </ng-template>
+      <ng-template #loadingTemplate let-node let-index="index" let-templates="templates"></ng-template>
+    </tree-root>
+    
   `,
   encapsulation: ViewEncapsulation.None,
   styleUrls: [ './nz-tree.component.css' ],
@@ -92,8 +162,8 @@ export class NzTreeComponent implements OnInit, OnChanges {
 
   //数据源key定义，匹配任何数据
   @Input() nzNodeKeys:{}={};
-  @Input() lazyLoad:boolean = false;
-  @Input() flag:boolean = false; // 是否是嵌套对象，默认值为false
+  @Input() nzLazyLoad:boolean = false;
+  @Input() nzFlag:boolean = false; // 是否是嵌套对象，默认值为false
 
   @Input() nzNodes: any[];
   @Input() nzCheckable = false;
@@ -117,13 +187,20 @@ export class NzTreeComponent implements OnInit, OnChanges {
   @Output() nzStateChange = new EventEmitter();
   @Output() nzCheck = new EventEmitter();
 
+  @Output() customStateChange = new EventEmitter();
+
   @ViewChild(TreeComponent) tree: TreeComponent;
 
   constructor(){
 
   }
 
-  stateValue: string;
+  _state:ITreeState
+  sc(event){
+    this._state= event;
+  }
+
+  stateValue: ITreeState;
   @Output() stateChange = new EventEmitter();
 
   @Input()
@@ -203,7 +280,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     //如果和组件使用的默认key不一样
-    if(!this.flag){
+    if(!this.nzFlag){
       if(this.nzNodeKeys){
         this.nzNodes = this.generateInnerNodes(this.nzNodes);
       }
@@ -275,7 +352,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
         targetNode['id'] = node.id;
         targetNode['name'] = node.name;
 
-        if(this.lazyLoad){
+        if(this.nzLazyLoad){
           targetNode['hasChildren'] = true;
         }
 
@@ -299,7 +376,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
           childNode['id'] = node.id;
           childNode['name'] = node.name;
 
-          if(this.lazyLoad){
+          if(this.nzLazyLoad){
             childNode['hasChildren'] = true;
           }
           childNode['checked'] = node.checked;
@@ -329,5 +406,10 @@ export class NzTreeComponent implements OnInit, OnChanges {
       })
     }
     this.nzLoadNodeChildren.emit($event);
+
+    if(this.nzLazyLoad){
+      this.stateValue=this._state;
+      this.customStateChange.emit(this.stateValue);
+    }
   }
 }
