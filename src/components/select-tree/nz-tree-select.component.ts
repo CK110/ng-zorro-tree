@@ -45,7 +45,15 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
            [@dropDownAnimation]="_dropDownPosition" >
         <div style="overflow: auto;">
           <div class="ant-select-dropdown-menu ant-select-dropdown-menu-vertical ant-select-dropdown-menu-root">
-            <nz-tree  [(state)]="stateValue" [nzNodes]="_treeData" [flag]="true" [nzCheckable]="true" [nzShowLine]="true" (nzEvent)="onEvent($event)"></nz-tree>
+            <nz-tree  
+              [(state)]="stateValue" 
+              [nzNodes]="_treeData" 
+              [flag]="true" 
+              [nzCheckable]="true" 
+              [nzShowLine]="true" 
+              (nzEvent)="onEvent($event)"
+              [nzOptions]="nzOptions"
+            ></nz-tree>
           </div>
         </div>
       </div>
@@ -74,7 +82,8 @@ export class NzTreeSelectComponent implements OnInit {
 
   @Input() nzTreeData:any=[];
   @Input() nzTreeKeys:any={};
-  @Input() lazyLoad:boolean = false;
+  @Input() nzLazyLoad:boolean = false;
+  @Input() nzOptions:any;
 
   selectedNodes:any=[];
 
@@ -86,7 +95,7 @@ export class NzTreeSelectComponent implements OnInit {
   }
 
 
-  stateValue: string;//组件状态
+  stateValue: ITreeState;//组件状态
   @Output() stateChange = new EventEmitter();
 
   @Input()
@@ -211,7 +220,7 @@ export class NzTreeSelectComponent implements OnInit {
         targetNode['id'] = node.id;
         targetNode['name'] = node.name;
 
-        if(this.lazyLoad){
+        if(this.nzLazyLoad){
           targetNode['hasChildren'] = true;
         }
 
@@ -235,7 +244,7 @@ export class NzTreeSelectComponent implements OnInit {
           childNode['id'] = node.id;
           childNode['name'] = node.name;
 
-          if(this.lazyLoad){
+          if(this.nzLazyLoad){
             childNode['hasChildren'] = true;
           }
           childNode['checked'] = node.checked;

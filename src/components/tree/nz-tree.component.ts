@@ -318,6 +318,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
   }
 
   repair($event:any){
+    debugger;
     if(!$event.node.data.children.length){
       $event.node.data.hasChildren = false;
     }else{

@@ -8,14 +8,17 @@ import {DemoBasicComponent} from '../demo/basic.component';
 import {DemoOneComponent} from '../demo/deme-one.component';
 import {NzTreeModule} from '../components/tree/nz-tree.module';
 import {NzTreeSelectModule} from '../components/select-tree/nz-tree-select.module';
+import {DemoTreeSelectSyncComponent} from '../demo/treeselect.async';
+import {DemoTreeSelectBasicComponent} from '../demo/treeselect.basic';
 
 @NgModule({
   declarations: [
     AppComponent,
     DemoAsyncComponent,
     DemoBasicComponent,
-    DemoOneComponent
-
+    DemoOneComponent,
+    DemoTreeSelectSyncComponent,
+    DemoTreeSelectBasicComponent
   ],
   imports: [
     BrowserModule,
