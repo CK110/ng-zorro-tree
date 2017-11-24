@@ -48,11 +48,13 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
             <nz-tree  
               [(state)]="stateValue" 
               [nzNodes]="_treeData" 
-              [flag]="true" 
+              [nzFlag]="true" 
               [nzCheckable]="true" 
               [nzShowLine]="true" 
               (nzEvent)="onEvent($event)"
               [nzOptions]="nzOptions"
+              [nzLazyLoad]="nzLazyLoad"
+              (customStateChange)="change($event)"
             ></nz-tree>
           </div>
         </div>
@@ -260,6 +262,10 @@ export class NzTreeSelectComponent implements OnInit {
       }
     })
     return targetNodes;
+  }
+
+  change(event){
+    this.stateValue = event;
   }
 
 }

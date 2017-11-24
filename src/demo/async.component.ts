@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import {KEYS, lazyloadNode} from './constant';
-import {ITreeState} from 'angular-tree-component';
+import {lazyloadNode} from './constant';
 
 @Component({
   selector: 'demo-async',
@@ -12,18 +11,22 @@ import {ITreeState} from 'angular-tree-component';
            [nzOptions]="options"
            [nzNodeKeys]="nodeKeys"
            [nzLazyLoad]="true"
-           [(state)]="state"
-
            (nzLoadNodeChildren)="onEvent1($event)"
            (nzEvent)="onEvent($event)"></nz-tree>
   `
 })
 export class DemoAsyncComponent {
-  nodeKeys=KEYS;
+  nodeKeys={
+    'pid':'zpid',
+    'id':'zid',
+    'name':'zname',
+    'checked':'zchecked',
+    'disableCheckbox':'zdisableCheckbox',
+  };
+
 
   nodes = lazyloadNode;
 
-  state:ITreeState;
   options = {
     getChildren: (node: any) => {
       return new Promise((resolve, reject) => {
