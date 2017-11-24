@@ -1,12 +1,8 @@
-import {
-  Component, ViewEncapsulation, OnInit, ViewChild, Input, ChangeDetectorRef, forwardRef, Output, EventEmitter,
-  SimpleChanges
-} from '@angular/core';
+import {Component, ViewEncapsulation, OnInit, ViewChild, Input, ChangeDetectorRef, forwardRef, Output, EventEmitter} from '@angular/core';
 import {NzTreeComponent} from '../tree/nz-tree.component';
 import {DropDownAnimation} from 'ng-zorro-antd/src/core/animation/dropdown-animations';
-import {NG_VALUE_ACCESSOR} from '@angular/forms';
-import {NzTreeOptions} from '../tree/nz-tree.options';
 import {ITreeState} from 'angular-tree-component';
+import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 @Component({
   selector: 'nz-treeselect',
@@ -52,16 +48,12 @@ import {ITreeState} from 'angular-tree-component';
             <nz-tree  
               [(state)]="stateValue" 
               [nzNodes]="_treeData" 
-              [nzFlag]="true" 
+              [flag]="true" 
               [nzCheckable]="true" 
-              [nzShowLine]="true"
-              [nzOptions]="nzOptions"
+              [nzShowLine]="true" 
               (nzEvent)="onEvent($event)"
-              (mmmmm)="mmm($event)" 
-              [nzLazyLoad]="nzLazyLoad"
-            >
-              
-            </nz-tree>
+              [nzOptions]="nzOptions"
+            ></nz-tree>
           </div>
         </div>
       </div>
@@ -83,23 +75,25 @@ import {ITreeState} from 'angular-tree-component';
 
 })
 export class NzTreeSelectComponent implements OnInit {
-
-  @Input() nzTreeData:any=[];
-  @Input() nzTreeKeys:any={};
-  @Input() nzLazyLoad:boolean = false;
-  @Input() nzOptions: NzTreeOptions;
-
   _isOpen= false;
   _dropDownPosition = 'bottom';
   _treeData:any=[];
   _triggerWidth = 0;
+
+  @Input() nzTreeData:any=[];
+  @Input() nzTreeKeys:any={};
+  @Input() nzLazyLoad:boolean = false;
+  @Input() nzOptions:any;
+
   selectedNodes:any=[];
+
   @ViewChild(NzTreeComponent) tree: NzTreeComponent;
   @ViewChild('trigger') trigger;
 
   constructor(){
 
   }
+
 
   stateValue: ITreeState;//组件状态
   @Output() stateChange = new EventEmitter();
@@ -113,6 +107,11 @@ export class NzTreeSelectComponent implements OnInit {
     this.stateChange.emit(this.stateValue);
   }
 
+  // stateChange(state){
+  //   this._state = state;
+  //   console.log(state);
+  // }
+
   ngOnInit() {
     if(this.nzTreeKeys){
       this._treeData = this.generateInnerNodes(this.nzTreeData,this.nzTreeKeys);
@@ -121,7 +120,6 @@ export class NzTreeSelectComponent implements OnInit {
 
     this._setTriggerWidth();
   }
-
 
   /**
    * TODO
@@ -134,7 +132,6 @@ export class NzTreeSelectComponent implements OnInit {
   }
 
   onEvent(event) {
-    debugger;
     if(event.eventName=="check"){
       this.refreshSelectedNodes();
 
@@ -168,8 +165,12 @@ export class NzTreeSelectComponent implements OnInit {
   }
 
   _openTreeView(){
+    //
     this._isOpen =true;
-    console.log(this.stateValue);
+    // setTimeout(()=>{
+    //   if(this.tree)
+    //      this.tree._state = this._state;
+    // },50)
   }
 
   closeDropDown(){
@@ -183,12 +184,6 @@ export class NzTreeSelectComponent implements OnInit {
   _setTriggerWidth(): void {
     this._triggerWidth = this.trigger.nativeElement.getBoundingClientRect().width;
   }
-
-  mmm(event){
-    console.log(event);
-    this.stateValue= event;
-  }
-
 
   /**
    * 生成符合组件规定的key
