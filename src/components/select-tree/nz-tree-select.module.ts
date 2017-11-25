@@ -5,6 +5,7 @@ import {NgZorroAntdModule} from 'ng-zorro-antd';
 import {NzTreeModule} from '../tree/nz-tree.module';
 import { OverlayModule } from '@angular/cdk/overlay';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -15,8 +16,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     NgZorroAntdModule.forRoot(),
     NzTreeModule,
     OverlayModule,
-    BrowserAnimationsModule
-
+    BrowserAnimationsModule,
+    FormsModule
   ],
   exports: [
     NzTreeSelectComponent

@@ -9,8 +9,7 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
 @Component({
   selector: 'nz-tree',
   template: `
-    {{nzLazyLoad}}
-  <tree-root *ngIf="!nzLazyLoad" class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
+    <tree-root *ngIf="!nzLazyLoad" class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
              [(state)]="state"
     (toggleExpanded)="fireEvent($event)"
     (activate)="fireEvent($event)"
@@ -77,8 +76,8 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
     </ng-template>
     <ng-template #loadingTemplate let-node let-index="index" let-templates="templates"></ng-template>
   </tree-root>
-  <!-- statechange 之后才触发 loadNodeChildren -->
-  <tree-root *ngIf="nzLazyLoad" class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
+    <!-- statechange 之后才触发 loadNodeChildren -->
+    <tree-root *ngIf="nzLazyLoad" class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
                [state]="state"
                (toggleExpanded)="fireEvent($event)"
                (activate)="fireEvent($event)"

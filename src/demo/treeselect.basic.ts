@@ -12,10 +12,16 @@ import {KEYS, lazyloadNode, NODES} from './constant';
                    [nzOptions]="options" 
                    [nzLazyLoad]=false
                    [(state)]="state"
+                   [(ngModel)]="m"
     ></nz-treeselect >
+    
+    <br>
+    mmm:{{ m | json }}
   `
 })
 export class DemoTreeSelectBasicComponent {
+
+  m:any;
 
   treeData:any = NODES;
   treeDataKeys=KEYS;

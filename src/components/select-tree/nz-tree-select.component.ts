@@ -2,13 +2,14 @@ import {Component, ViewEncapsulation, OnInit, ViewChild, Input, ChangeDetectorRe
 import {NzTreeComponent} from '../tree/nz-tree.component';
 import {DropDownAnimation} from 'ng-zorro-antd/src/core/animation/dropdown-animations';
 import {ITreeState} from 'angular-tree-component';
-import {NG_VALUE_ACCESSOR} from '@angular/forms';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {noop} from 'rxjs/util/noop';
 
 @Component({
   selector: 'nz-treeselect',
-  template: `    
+  template: `
     <div class="ant-select ant-select-enabled ant-select-show-search" style="width: 400px;">
-        <div tabindex="0" (click)="_openTreeView()" #trigger cdkOverlayOrigin #origin="cdkOverlayOrigin" 
+        <div tabindex="0" (click)="_openTreeView()" #trigger cdkOverlayOrigin #origin="cdkOverlayOrigin"
              class="ant-select-selection ant-select-selection--multiple">
           <div class="ant-select-selection__rendered" >
             <ul>
@@ -30,7 +31,7 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
         </span>
         <span class="ant-select-arrow" ><b></b></span>
     </div>
-    
+
     <ng-template
       cdkConnectedOverlay
       cdkConnectedOverlayHasBackdrop
@@ -41,16 +42,16 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
       [cdkConnectedOverlayWidth]="_triggerWidth"
       [cdkConnectedOverlayOpen]="_isOpen"
     >
-      <div class="ant-select-dropdown ant-select-dropdown--multiple ant-select-dropdown-placement-bottomLeft ng-trigger ng-trigger-dropDownAnimation" 
+      <div class="ant-select-dropdown ant-select-dropdown--multiple ant-select-dropdown-placement-bottomLeft ng-trigger ng-trigger-dropDownAnimation"
            [@dropDownAnimation]="_dropDownPosition" >
         <div style="overflow: auto;">
           <div class="ant-select-dropdown-menu ant-select-dropdown-menu-vertical ant-select-dropdown-menu-root">
-            <nz-tree  
-              [(state)]="stateValue" 
-              [nzNodes]="_treeData" 
-              [nzFlag]="true" 
-              [nzCheckable]="true" 
-              [nzShowLine]="true" 
+            <nz-tree
+              [(state)]="stateValue"
+              [nzNodes]="_treeData"
+              [nzFlag]="true"
+              [nzCheckable]="true"
+              [nzShowLine]="true"
               (nzEvent)="onEvent($event)"
               [nzOptions]="nzOptions"
               [nzLazyLoad]="nzLazyLoad"
@@ -60,7 +61,7 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
         </div>
       </div>
     </ng-template>
-    
+
   `,
   encapsulation: ViewEncapsulation.None,
   styleUrls: [ './nz-tree-select.component.css' ],
@@ -76,18 +77,40 @@ import {NG_VALUE_ACCESSOR} from '@angular/forms';
   ],
 
 })
-export class NzTreeSelectComponent implements OnInit {
+export class NzTreeSelectComponent implements OnInit , ControlValueAccessor {
+
   _isOpen= false;
   _dropDownPosition = 'bottom';
-  _treeData:any=[];
+  _treeData: any= [];
   _triggerWidth = 0;
 
-  @Input() nzTreeData:any=[];
-  @Input() nzTreeKeys:any={};
-  @Input() nzLazyLoad:boolean = false;
-  @Input() nzOptions:any;
+  @Input() nzTreeData: any= [];
+  @Input() nzTreeKeys: any= {};
+  @Input() nzLazyLoad = false;
+  @Input() nzOptions: any;
 
-  selectedNodes:any=[];
+  selectedNodes: any= [];
+
+  //Placeholders for the callbacks which are later provided
+  //by the Control Value Accessor
+  private onTouchedCallback: () => void = noop;
+  private onChangeCallback: (_: any) => void = noop;
+
+  //From ControlValueAccessor interface
+  writeValue(value: any) {
+      this.selectedNodes = value;
+  }
+
+  //From ControlValueAccessor interface
+  registerOnChange(fn: any) {
+    this.onChangeCallback = fn;
+  }
+
+  //From ControlValueAccessor interface
+  registerOnTouched(fn: any) {
+    this.onTouchedCallback = fn;
+  }
+
 
   @ViewChild(NzTreeComponent) tree: NzTreeComponent;
   @ViewChild('trigger') trigger;
@@ -97,7 +120,7 @@ export class NzTreeSelectComponent implements OnInit {
   }
 
 
-  stateValue: ITreeState;//组件状态
+  stateValue: ITreeState; // 组件状态
   @Output() stateChange = new EventEmitter();
 
   @Input()
@@ -109,14 +132,10 @@ export class NzTreeSelectComponent implements OnInit {
     this.stateChange.emit(this.stateValue);
   }
 
-  // stateChange(state){
-  //   this._state = state;
-  //   console.log(state);
-  // }
 
   ngOnInit() {
-    if(this.nzTreeKeys){
-      this._treeData = this.generateInnerNodes(this.nzTreeData,this.nzTreeKeys);
+    if (this.nzTreeKeys){
+      this._treeData = this.generateInnerNodes(this.nzTreeData, this.nzTreeKeys);
     }
     this._treeData = this.generateNodes(this._treeData);
 
@@ -134,7 +153,7 @@ export class NzTreeSelectComponent implements OnInit {
   }
 
   onEvent(event) {
-    if(event.eventName=="check"){
+    if (event.eventName == 'check'){
       this.refreshSelectedNodes();
 
       console.log(this.tree);
@@ -144,39 +163,41 @@ export class NzTreeSelectComponent implements OnInit {
 
   refreshSelectedNodes(){
     this.selectedNodes = [];
-    const m = (node)=>{
-      //有子节点
-      if(node.children&&node.children.length>0){
-        if(node.halfChecked){
-          node.children.forEach(node=>{
+    const m = (node) => {
+      // 有子节点
+      if (node.children && node.children.length > 0){
+        if (node.halfChecked){
+          node.children.forEach(node => {
             m(node);
-          })
-        }else if(node.checked){
+          });
+        }else if (node.checked){
           this.selectedNodes.push(node);
         }
       }else{
-        if(node.checked ==true){
-          //没有子节点，但是选中
+        if (node.checked == true){
+          // 没有子节点，但是选中
           this.selectedNodes.push(node);
         }
       }
-    }
-    this.tree.treeModel.nodes.forEach((node)=>{
+    };
+    this.tree.treeModel.nodes.forEach((node) => {
       m(node);
-    })
+    });
+
+    this.onChangeCallback(this.selectedNodes);
   }
 
   _openTreeView(){
     //
-    this._isOpen =true;
+    this._isOpen = true;
     // setTimeout(()=>{
     //   if(this.tree)
     //      this.tree._state = this._state;
     // },50)
   }
 
-  closeDropDown(){
-    this._isOpen =false;
+  closeDropDown() {
+    this._isOpen = false;
   }
 
   onPositionChange(position) {
@@ -192,17 +213,17 @@ export class NzTreeSelectComponent implements OnInit {
    * @param nodes
    * @returns {Array}
    */
-  generateInnerNodes(nodes:any,nzNodeKeys:any){
-    let tnodes=[];
-    nodes.forEach((node)=>{
+  generateInnerNodes(nodes: any, nzNodeKeys: any){
+    const tnodes = [];
+    nodes.forEach((node) => {
       tnodes.push({
-        'pid':node[nzNodeKeys['pid']],
+        'pid': node[nzNodeKeys['pid']],
         'id': node[nzNodeKeys['id']],
-        'name':node[nzNodeKeys['name']],
-        'checked':node[nzNodeKeys['checked']],
-        'disableCheckbox':node[nzNodeKeys['disableCheckbox']],
-      })
-    })
+        'name': node[nzNodeKeys['name']],
+        'checked': node[nzNodeKeys['checked']],
+        'disableCheckbox': node[nzNodeKeys['disableCheckbox']],
+      });
+    });
     return tnodes;
   }
 
@@ -211,18 +232,18 @@ export class NzTreeSelectComponent implements OnInit {
    * @param nodes
    * @returns {any}
    */
-  generateNodes(nodes:any){
-    let targetNodes:any=[];
+  generateNodes(nodes: any){
+    const targetNodes: any = [];
 
-    nodes.forEach((node)=>{
-      let targetNode = {};
+    nodes.forEach((node) => {
+      const targetNode = {};
       //没有父节点
-      if(node.pid ==''){
+      if (node.pid == ''){
         targetNode['pid'] = node.pid;
         targetNode['id'] = node.id;
         targetNode['name'] = node.name;
 
-        if(this.nzLazyLoad){
+        if (this.nzLazyLoad){
           targetNode['hasChildren'] = true;
         }
 
@@ -232,21 +253,21 @@ export class NzTreeSelectComponent implements OnInit {
       }
     });
 
-    return this.generateChildren(targetNodes,nodes);
+    return this.generateChildren(targetNodes, nodes);
   }
 
-  generateChildren(targetNodes,nodes){
-    targetNodes.forEach((tnode,index)=>{
+  generateChildren(targetNodes, nodes){
+    targetNodes.forEach((tnode, index) => {
       const tid = tnode.id;      //父id
-      let childrenNodes:any=[];
-      nodes.forEach((node,i)=>{
-        let childNode = {};
-        if(node.pid == tid){
+      const childrenNodes: any = [];
+      nodes.forEach((node, i) => {
+        const childNode = {};
+        if (node.pid == tid){
           childNode['pid'] = node.pid;
           childNode['id'] = node.id;
           childNode['name'] = node.name;
 
-          if(this.nzLazyLoad){
+          if (this.nzLazyLoad){
             childNode['hasChildren'] = true;
           }
           childNode['checked'] = node.checked;
@@ -254,13 +275,13 @@ export class NzTreeSelectComponent implements OnInit {
 
           childrenNodes.push(childNode);
         }
-      })
+      });
 
-      if(childrenNodes.length >0){
+      if (childrenNodes.length > 0){
         targetNodes[index].children = childrenNodes;
-        this.generateChildren(targetNodes[index].children,nodes);
+        this.generateChildren(targetNodes[index].children, nodes);
       }
-    })
+    });
     return targetNodes;
   }
 
