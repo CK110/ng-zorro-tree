@@ -1,0 +1,19 @@
+# folders to ignore
+/src
+/node_modules
+/test
+/.nyc_output
+/coverage
+/e2e
+
+# ignore typescript files
+*.ts
+
+# ignore tsconfig.json and tslint
+tsconfig.json
+tslint.json
+protractor.conf.js
+karma.conf.js
+.gitignore
+.editorconfig
+.angular-cli.json
