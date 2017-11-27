@@ -5,6 +5,7 @@ import {
 import {ITreeState, TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
 import { NzTreeOptions } from './nz-tree.options';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
+import {NzTreeService} from '../providers/nz-tree.service';
 
 @Component({
   selector: 'nz-tree',
@@ -190,7 +191,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
 
   @ViewChild(TreeComponent) tree: TreeComponent;
 
-  constructor(){
+  constructor(public nzTreeService:NzTreeService){
 
   }
 
@@ -281,9 +282,9 @@ export class NzTreeComponent implements OnInit, OnChanges {
     //如果和组件使用的默认key不一样
     if(!this.nzFlag){
       if(this.nzNodeKeys){
-        this.nzNodes = this.generateInnerNodes(this.nzNodes);
+        this.nzNodes = this.nzTreeService.generateInnerNodes(this.nzNodes,this.nzNodeKeys,this.nzLazyLoad)
       }
-      this.nzNodes = this.generateNodes(this.nzNodes);
+      this.nzNodes = this.nzTreeService.generateNodes(this.nzNodes,this.nzLazyLoad)
     }
   }
 
@@ -316,85 +317,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
 
   [key: string]: any;
 
-  /**
-   * 生成符合组件规定的key
-   * @param nodes
-   * @returns {Array}
-   */
-  generateInnerNodes(nodes:any){
-    let tnodes=[];
-    nodes.forEach((node)=>{
-      tnodes.push({
-        'pid':node[this.nzNodeKeys['pid']],
-        'id': node[this.nzNodeKeys['id']],
-        'name':node[this.nzNodeKeys['name']],
-        'checked':node[this.nzNodeKeys['checked']],
-        'disableCheckbox':node[this.nzNodeKeys['disableCheckbox']],
-      })
-    })
-    return tnodes;
-  }
-
-  /**
-   * 生成需要的node结构
-   * @param nodes
-   * @returns {any}
-   */
-  generateNodes(nodes:any){
-    let targetNodes:any=[];
-
-    nodes.forEach((node)=>{
-      let targetNode = {};
-      //没有父节点
-      if(node.pid ==''){
-        targetNode['pid'] = node.pid;
-        targetNode['id'] = node.id;
-        targetNode['name'] = node.name;
-
-        if(this.nzLazyLoad){
-          targetNode['hasChildren'] = true;
-        }
-
-        targetNode['checked'] = node.checked;
-        targetNode['disableCheckbox'] = node.disableCheckbox;
-        targetNodes.push(targetNode);
-      }
-    });
-
-    return this.generateChildren(targetNodes,nodes);
-  }
-
-  generateChildren(targetNodes,nodes){
-    targetNodes.forEach((tnode,index)=>{
-      const tid = tnode.id;      //父id
-      let childrenNodes:any=[];
-      nodes.forEach((node,i)=>{
-        let childNode = {};
-        if(node.pid == tid){
-          childNode['pid'] = node.pid;
-          childNode['id'] = node.id;
-          childNode['name'] = node.name;
-
-          if(this.nzLazyLoad){
-            childNode['hasChildren'] = true;
-          }
-          childNode['checked'] = node.checked;
-          childNode['disableCheckbox'] = node.disableCheckbox;
-
-          childrenNodes.push(childNode);
-        }
-      })
-
-      if(childrenNodes.length >0){
-        targetNodes[index].children = childrenNodes;
-        this.generateChildren(targetNodes[index].children,nodes);
-      }
-    })
-    return targetNodes;
-  }
-
   repair($event:any){
-    debugger;
     if(!$event.node.data.children.length){
       $event.node.data.hasChildren = false;
     }else{

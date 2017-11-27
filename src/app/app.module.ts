@@ -5,11 +5,11 @@ import {DemoAsyncComponent} from '../demo/async.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgZorroAntdModule} from 'ng-zorro-antd';
 import {DemoBasicComponent} from '../demo/basic.component';
-import {NzTreeModule} from '../components/tree/nz-tree.module';
-import {NzTreeSelectModule} from '../components/select-tree/nz-tree-select.module';
+import {NzTreeModule,NzTreeSelectModule} from '../components/index';
 import {DemoTreeSelectSyncComponent} from '../demo/treeselect.async';
 import {DemoTreeSelectBasicComponent} from '../demo/treeselect.basic';
 import {FormsModule} from '@angular/forms';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -25,9 +25,8 @@ import {FormsModule} from '@angular/forms';
     NgZorroAntdModule.forRoot(),
     NzTreeModule,
     NzTreeSelectModule,
-    FormsModule
-
-
+    FormsModule,
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
