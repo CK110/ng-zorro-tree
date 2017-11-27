@@ -3,8 +3,10 @@ import { NzTreeComponent } from '../tree/nz-tree.component';
 import { DropDownAnimation } from 'ng-zorro-antd/src/core/animation/dropdown-animations';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs/util/noop';
+import { NzTreeService } from '../providers/nz-tree.service';
 var NzTreeSelectComponent = (function () {
-    function NzTreeSelectComponent() {
+    function NzTreeSelectComponent(nzTreeService) {
+        this.nzTreeService = nzTreeService;
         this._isOpen = false;
         this._dropDownPosition = 'bottom';
         this._treeData = [];
@@ -44,9 +46,9 @@ var NzTreeSelectComponent = (function () {
     });
     NzTreeSelectComponent.prototype.ngOnInit = function () {
         if (this.nzTreeKeys) {
-            this._treeData = this.generateInnerNodes(this.nzTreeData, this.nzTreeKeys);
+            this._treeData = this.nzTreeService.generateInnerNodes(this.nzTreeData, this.nzTreeKeys, this.nzLazyLoad);
         }
-        this._treeData = this.generateNodes(this._treeData);
+        this._treeData = this.nzTreeService.generateNodes(this._treeData, this.nzLazyLoad);
         this._setTriggerWidth();
     };
     /**
@@ -109,75 +111,6 @@ var NzTreeSelectComponent = (function () {
     NzTreeSelectComponent.prototype._setTriggerWidth = function () {
         this._triggerWidth = this.trigger.nativeElement.getBoundingClientRect().width;
     };
-    /**
-     * 生成符合组件规定的key
-     * @param nodes
-     * @returns {Array}
-     */
-    NzTreeSelectComponent.prototype.generateInnerNodes = function (nodes, nzNodeKeys) {
-        var tnodes = [];
-        nodes.forEach(function (node) {
-            tnodes.push({
-                'pid': node[nzNodeKeys['pid']],
-                'id': node[nzNodeKeys['id']],
-                'name': node[nzNodeKeys['name']],
-                'checked': node[nzNodeKeys['checked']],
-                'disableCheckbox': node[nzNodeKeys['disableCheckbox']],
-            });
-        });
-        return tnodes;
-    };
-    /**
-     * 生成需要的node结构
-     * @param nodes
-     * @returns {any}
-     */
-    NzTreeSelectComponent.prototype.generateNodes = function (nodes) {
-        var _this = this;
-        var targetNodes = [];
-        nodes.forEach(function (node) {
-            var targetNode = {};
-            //没有父节点
-            if (node.pid == '') {
-                targetNode['pid'] = node.pid;
-                targetNode['id'] = node.id;
-                targetNode['name'] = node.name;
-                if (_this.nzLazyLoad) {
-                    targetNode['hasChildren'] = true;
-                }
-                targetNode['checked'] = node.checked;
-                targetNode['disableCheckbox'] = node.disableCheckbox;
-                targetNodes.push(targetNode);
-            }
-        });
-        return this.generateChildren(targetNodes, nodes);
-    };
-    NzTreeSelectComponent.prototype.generateChildren = function (targetNodes, nodes) {
-        var _this = this;
-        targetNodes.forEach(function (tnode, index) {
-            var tid = tnode.id; //父id
-            var childrenNodes = [];
-            nodes.forEach(function (node, i) {
-                var childNode = {};
-                if (node.pid == tid) {
-                    childNode['pid'] = node.pid;
-                    childNode['id'] = node.id;
-                    childNode['name'] = node.name;
-                    if (_this.nzLazyLoad) {
-                        childNode['hasChildren'] = true;
-                    }
-                    childNode['checked'] = node.checked;
-                    childNode['disableCheckbox'] = node.disableCheckbox;
-                    childrenNodes.push(childNode);
-                }
-            });
-            if (childrenNodes.length > 0) {
-                targetNodes[index].children = childrenNodes;
-                _this.generateChildren(targetNodes[index].children, nodes);
-            }
-        });
-        return targetNodes;
-    };
     NzTreeSelectComponent.prototype.change = function (event) {
         this.stateValue = event;
     };
@@ -200,7 +133,9 @@ var NzTreeSelectComponent = (function () {
                 },] },
     ];
     /** @nocollapse */
-    NzTreeSelectComponent.ctorParameters = function () { return []; };
+    NzTreeSelectComponent.ctorParameters = function () { return [
+        { type: NzTreeService, },
+    ]; };
     NzTreeSelectComponent.propDecorators = {
         'nzTreeData': [{ type: Input },],
         'nzTreeKeys': [{ type: Input },],

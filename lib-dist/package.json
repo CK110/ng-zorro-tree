@@ -1,6 +1,6 @@
 {
   "name": "ng-zorro-tree",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -9,12 +9,13 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build:library": "rm -rf lib-dist/ && nglb --rootDir src/components --outDir lib-dist --tsconfig tsconfig-aot.json"
+    "build:library": "rm -rf lib-dist/ && nglb --rootDir src/components --outDir lib-dist",
+    "npm:publish":"npm publish --registry=http://ubuntu:8081/repository/npm/"
   },
   "main": "./lib-dist/index.js",
   "types": "./lib-dist/index.d.ts",
   "dependencies": {
-    "angular-tree-component": "5.2.1",
+    "angular-tree-component": "^5.2.1",
     "ng-zorro-antd": "^0.6.0"
   },
   "peerDependencies": {

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NzTreeComponent } from './nz-tree.component';
 import { TreeModule } from 'angular-tree-component';
+import { NzTreeService } from '../providers/nz-tree.service';
 var NzTreeModule = (function () {
     function NzTreeModule() {
     }
@@ -16,6 +17,9 @@ var NzTreeModule = (function () {
                     ],
                     exports: [
                         NzTreeComponent
+                    ],
+                    providers: [
+                        NzTreeService
                     ]
                 },] },
     ];

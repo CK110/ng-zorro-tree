@@ -6,6 +6,7 @@ import {NzTreeModule} from '../tree/nz-tree.module';
 import { OverlayModule } from '@angular/cdk/overlay';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FormsModule} from '@angular/forms';
+import {NzTreeService} from '../providers/nz-tree.service';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,9 @@ import {FormsModule} from '@angular/forms';
   ],
   exports: [
     NzTreeSelectComponent
+  ],
+  providers:[
+    NzTreeService
   ]
 })
 export class NzTreeSelectModule {}

@@ -8,7 +8,11 @@
 /.idea
 
 # ignore typescript files
-*.ts
+*.component.ts
+*.service.ts
+*.module.ts
+index.ts
+
 
 # ignore tsconfig.json and tslint
 tsconfig.json

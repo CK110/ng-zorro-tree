@@ -1,6 +1,6 @@
 {
   "name": "ng-zorro-tree",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -15,7 +15,7 @@
   "main": "./lib-dist/index.js",
   "types": "./lib-dist/index.d.ts",
   "dependencies": {
-    "angular-tree-component": "5.2.1",
+    "angular-tree-component": "^5.2.1",
     "ng-zorro-antd": "^0.6.0"
   },
   "peerDependencies": {

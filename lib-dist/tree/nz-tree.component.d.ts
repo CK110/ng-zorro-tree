@@ -1,7 +1,9 @@
 import { OnChanges, SimpleChanges, EventEmitter, TemplateRef, OnInit } from '@angular/core';
 import { ITreeState, TreeComponent, TreeModel, TreeNode } from 'angular-tree-component';
 import { NzTreeOptions } from './nz-tree.options';
+import { NzTreeService } from '../providers/nz-tree.service';
 export declare class NzTreeComponent implements OnInit, OnChanges {
+    nzTreeService: NzTreeService;
     _options: NzTreeOptions;
     nzNodeKeys: {};
     nzLazyLoad: boolean;
@@ -28,7 +30,7 @@ export declare class NzTreeComponent implements OnInit, OnChanges {
     nzCheck: EventEmitter<{}>;
     customStateChange: EventEmitter<{}>;
     tree: TreeComponent;
-    constructor();
+    constructor(nzTreeService: NzTreeService);
     _state: ITreeState;
     sc(event: any): void;
     stateValue: ITreeState;
@@ -47,18 +49,5 @@ export declare class NzTreeComponent implements OnInit, OnChanges {
     initialized($event: any): void;
     ngOnChanges(changes: SimpleChanges): void;
     [key: string]: any;
-    /**
-     * 生成符合组件规定的key
-     * @param nodes
-     * @returns {Array}
-     */
-    generateInnerNodes(nodes: any): any[];
-    /**
-     * 生成需要的node结构
-     * @param nodes
-     * @returns {any}
-     */
-    generateNodes(nodes: any): any;
-    generateChildren(targetNodes: any, nodes: any): any;
     repair($event: any): void;
 }
