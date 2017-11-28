@@ -2,6 +2,13 @@ import {Injectable} from '@angular/core';
 
 @Injectable()
 export class NzTreeService {
+  nzNodeKeys = {
+    'pid': 'pid',
+    'id': 'id',
+    'name': 'name',
+    'checked': 'checked',
+    'disableCheckbox': 'disableCheckbox',
+  }
 
   constructor(){
 
@@ -12,6 +19,9 @@ export class NzTreeService {
    * @returns {Array}
    */
   generateInnerNodes(nodes: any[], nzNodeKeys: any,nzLazyLoad:boolean){
+    if(!nzNodeKeys){
+      nzNodeKeys= this.nzNodeKeys;
+    }
     const tnodes = [];
     nodes.forEach((node) => {
       if(nzLazyLoad){

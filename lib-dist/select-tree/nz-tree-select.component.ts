@@ -9,7 +9,7 @@ import {NzTreeService} from '../providers/nz-tree.service';
 @Component({
   selector: 'nz-treeselect',
   template: `
-    <div class="ant-select ant-select-enabled ant-select-show-search" style="width: 400px;">
+    <div class="ant-select ant-select-enabled ant-select-show-search" style="width: 100%;">
         <div tabindex="0" (click)="_openTreeView()" #trigger cdkOverlayOrigin #origin="cdkOverlayOrigin"
              class="ant-select-selection ant-select-selection--multiple">
           <div class="ant-select-selection__rendered" >

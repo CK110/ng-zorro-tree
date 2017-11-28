@@ -17,7 +17,6 @@ import {NzTreeService} from '../providers/nz-tree.service';
     NgZorroAntdModule.forRoot(),
     NzTreeModule,
     OverlayModule,
-    BrowserAnimationsModule,
     FormsModule
   ],
   exports: [
