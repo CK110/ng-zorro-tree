@@ -161,7 +161,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
   _options: NzTreeOptions;
 
   //数据源key定义，匹配任何数据
-  @Input() nzNodeKeys:{}={};
+  @Input() nzNodeKeys:object;
   @Input() nzLazyLoad:boolean = false;
   @Input() nzFlag:boolean = false; // 是否是嵌套对象，默认值为false
 
