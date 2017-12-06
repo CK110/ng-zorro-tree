@@ -15,8 +15,10 @@
   "main": "./lib-dist/index.js",
   "types": "./lib-dist/index.d.ts",
   "dependencies": {
-    "angular-tree-component": "^5.2.1",
-    "ng-zorro-antd": "^0.6.0"
+    "angular-tree-component": "^6.0.0",
+    "ng-zorro-antd": "^0.6.0",
+    "mobx": "3.3.2",
+    "mobx-angular": "1.9.0"
   },
   "peerDependencies": {
     "@angular/common": "^5.0.0",

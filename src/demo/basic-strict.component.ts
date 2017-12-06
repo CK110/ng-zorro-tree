@@ -3,9 +3,9 @@ import {NODES} from './constant';
 import {NzTreeComponent} from "../components/tree/nz-tree.component";
 
 @Component({
-  selector: 'demo-basic',
+  selector: 'demo-basic-strict',
   template: `    
-      <h2>普通</h2><br>
+      <h2>CheckStrictly</h2><br>
       <h3>选中的数据(id 数组): {{selectNodes1 | json}}</h3><br>
       <a (click)="mod()">修改初始双向绑定对象值</a> |
       <a (click)="click1()">展开</a> |
@@ -17,12 +17,13 @@ import {NzTreeComponent} from "../components/tree/nz-tree.component";
       <nz-tree [nzNodes]="nodes"
                [nzCheckable]="true"
                [nzNodeKeys]="nodeKeys"
-               [nzShowLine]="true"
+               [nzShowLine]="false"
                [(ngModel)]="selectNodes1"
+               [nzCheckStrictly]="true"
                (nzEvent)="onEvent($event)"></nz-tree>
   `
 })
-export class DemoBasicComponent {
+export class DemoBasicStrictComponent {
 
   nodeKeys={
     'pid':'zpid',

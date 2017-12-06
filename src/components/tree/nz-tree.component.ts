@@ -1,4 +1,4 @@
-import {Component, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ViewEncapsulation, ContentChild, TemplateRef, OnInit, forwardRef} from '@angular/core';
+import {Component, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ViewEncapsulation, ContentChild, TemplateRef, OnInit, forwardRef, ChangeDetectorRef} from '@angular/core';
 import {IActionMapping, ITreeState, TREE_ACTIONS, TreeComponent, TreeModel, TreeNode} from 'angular-tree-component';
 import {NG_VALUE_ACCESSOR} from '@angular/forms';
 import {ITreeOptions} from 'angular-tree-component';
@@ -17,7 +17,8 @@ export interface NzNodeKeys{
 @Component({
   selector: 'nz-tree',
   template: `
-    <tree-root class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="_nzNodes" [options]="_options"
+    <tree-root class="ant-tree" [class.ant-tree-show-line]="nzShowLine" [nodes]="nzNodes" [options]="_options"
+               [(state)]="_state"
                (toggleExpanded)="fireEvent($event)"
                (activate)="fireEvent($event)"
                (deactivate)="fireEvent($event)"
@@ -29,7 +30,7 @@ export interface NzNodeKeys{
                (copyNode)="fireEvent($event)"
                (loadNodeChildren)="fireEvent($event)"
                (changeFilter)="fireEvent($event)"
-               (stateChange)="fireEvent($event)">
+               (stateChange)="sc($event)">
       <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
         <div
           [class.ant-tree-node]="true"
@@ -96,13 +97,39 @@ export interface NzNodeKeys{
 })
 export class NzTreeComponent implements OnInit, OnChanges {
   _options: NzTreeOptions;
+
   _nzNodes:any[];
+
+  @Output() stateChange = new EventEmitter();
+  _state: ITreeState;
+
+  @Input()
+  get state() {
+    return this._state;
+  }
+  set state(val:any) {
+    this._state = val;
+  }
+
+  sc(event){
+    this._state = event;
+    this.stateChange.emit(this._state);
+  }
 
   @Input() nzCheckStrictly:boolean =false;
   @Input() nzLazyLoad:boolean = false;
   @Input() nzNodeKeys: NzNodeKeys;
+  @Input()
+  get nzNodes(): any[]{
+    return this._nzNodes
+  }
 
-  @Input() nzNodes: any[];
+  set nzNodes(_nodes: any[]){
+    let n = this.generateNodesByKeys(_nodes);
+    this._nzNodes = this.generateNodes(n);
+
+  }
+
   @Input() nzCheckable = false;
   @Input() nzShowLine = false;
   @Input() nzOptions: any;
@@ -135,17 +162,61 @@ export class NzTreeComponent implements OnInit, OnChanges {
   // 双向绑定
   value:any;
 
+  selectedNodes:any[];
+
   writeValue(value: any) {
     this.value = value;
-    console.log(this.value);
-    if(this.value && this.nzCheckable){
-      this._nzNodes = this.generateNodes(this.nzNodes);
+
+    if(value){
+      this.setDefaultChecked();
+      this.refreshSelectedNodes();
+    }
+
+  }
+
+  /** 设置 checked属性 */
+  private setDefaultChecked(){
+    const m = (node)=>{
+      if(this.value.indexOf(node.id)!=-1){
+        node.checked = true;
+      }else{
+        node.checked = false;
+      }
+      node.children&&node.children.forEach(node=>{
+        m(node);
+      })
+    }
+
+    this._nzNodes.forEach((node)=>{
+      m(node);
+    })
+
+    /** 模拟选中 */
+    if(!this.nzCheckStrictly){
+      const m = (node)=>{
+        if(node.data.checked)
+          this.updateCheckState(node,node.data.checked);
+        node.children&&node.children.forEach(node=>{
+          m(node);
+        })
+      }
+      this.tree.treeModel.roots.forEach((node)=>{
+        m(node);
+      })
     }
   }
 
-  updateModel(value) {
-    this.value = value;
-
+  updateModel(selected:any[]) {
+    debugger;
+    if(selected.length>0){
+      const val:any[]=[];
+      selected.forEach((node)=>{
+        val.push(node.id)
+      })
+      this.value = val;
+    }else{
+      this.value = [];
+    }
     this.onModelChange(this.value);
   }
 
@@ -216,9 +287,10 @@ export class NzTreeComponent implements OnInit, OnChanges {
     parentLoop(node);
   }
 
+
+
   fireEvent(event: any) {
     const eventName = event && event.eventName;
-
 
     /** 模拟选中 */
     if(eventName ==='initialized' && !this.nzCheckStrictly){
@@ -246,8 +318,14 @@ export class NzTreeComponent implements OnInit, OnChanges {
       }
     }
 
-    if(eventName === 'stateChange'){
-      console.log(event);
+    /**for treeselect 单选*/
+    if(event.eventName == 'activate'){
+
+      if(!this.nzCheckable){
+        console.log('22',this.tree.treeModel.activeNodes);
+        this.selectedNodes[0]=this.tree.treeModel.activeNodes[0].data;
+        this.updateModel(this.selectedNodes);
+      }
     }
 
     if (eventName && typeof eventName === 'string') {
@@ -259,10 +337,13 @@ export class NzTreeComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    console.log('this._options', this._options);
+    // console.log('this._options', this._options);
+    // this.nzNodes = this.generateNodesByKeys(this.nzNodes);
+    //
+    // this._nzNodes = this.generateNodes(this.nzNodes);
 
-    this.nzNodes = this.generateNodesByKeys(this.nzNodes);
   }
+
 
   ngOnChanges(changes: SimpleChanges): void {
     const actionMapping: IActionMapping = {};
@@ -287,16 +368,21 @@ export class NzTreeComponent implements OnInit, OnChanges {
    * @returns {Array}
    */
   private generateNodesByKeys(nodes: any[]){
-    const tnodes = [];
-    nodes.forEach((node) => {
-      tnodes.push({
-        'pid': node[this.nzNodeKeys['pid']],
-        'id': node[this.nzNodeKeys['id']],
-        'name': node[this.nzNodeKeys['name']],
-        'disableCheckbox': node[this.nzNodeKeys['disableCheckbox']] || false,
+    if(this.nzNodeKeys){
+      const tnodes = [];
+      nodes.forEach((node) => {
+        tnodes.push({
+          'pid': node[this.nzNodeKeys['pid']],
+          'id': node[this.nzNodeKeys['id']],
+          'name': node[this.nzNodeKeys['name']],
+          'disableCheckbox': node[this.nzNodeKeys['disableCheckbox']] || false,
+        });
       });
-    });
-    return tnodes;
+      return tnodes;
+    }else {
+      return [];
+    }
+
   }
 
   /**
@@ -305,6 +391,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
    * @returns {any}
    */
   private generateNodes(nodes: any[]){
+    console.log('start');
     const rootNodes: any = [];
     const childrenNodes:any =[];
 
@@ -319,11 +406,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
           rootNode['hasChildren'] = true;
         }
 
-        if(this.value && this.value.indexOf(node.id)!=-1){
-          rootNode['checked'] = true;
-        }else{
-          rootNode['checked'] = false;
-        }
+        rootNode['checked'] = false;
 
         rootNode['disableCheckbox'] = node.disableCheckbox;
         rootNodes.push(rootNode);
@@ -332,7 +415,6 @@ export class NzTreeComponent implements OnInit, OnChanges {
       }
     });
 
-    console.log(rootNodes);
     console.log(this.generateChildren(rootNodes,childrenNodes));
 
     return this.generateChildren(rootNodes,childrenNodes);
@@ -354,11 +436,9 @@ export class NzTreeComponent implements OnInit, OnChanges {
             childNode['hasChildren'] = true;
           }
 
-          if(this.value && this.value.indexOf(node.id)!=-1){
-            childNode['checked'] = true;
-          }else{
-            childNode['checked'] = false;
-          }
+
+          childNode['checked'] = false;
+
 
           childNode['disableCheckbox'] = node.disableCheckbox;
           childrenNodes.push(childNode);
@@ -375,8 +455,7 @@ export class NzTreeComponent implements OnInit, OnChanges {
   }
 
   private refreshSelectedNodes(){
-    const selectedNodes = [];
-    const _selectedNodes = [];
+    this.selectedNodes = [];
 
     const m = (node) => {
       // 有子节点
@@ -386,16 +465,12 @@ export class NzTreeComponent implements OnInit, OnChanges {
             m(node);
           });
         }else if (node.checked){
-          selectedNodes.push(node.id);
-          _selectedNodes.push(node);
-
+          this.selectedNodes.push(node);
         }
       }else{
         if (node.checked == true){
           // 没有子节点，但是选中
-          selectedNodes.push(node.id);
-          _selectedNodes.push(node);
-
+          this.selectedNodes.push(node);
         }
       }
     };
@@ -403,18 +478,14 @@ export class NzTreeComponent implements OnInit, OnChanges {
     const n = (node) => {
       if (node.children && node.children.length > 0){
         if (node.checked){
-          selectedNodes.push(node.id);
-          _selectedNodes.push(node);
-
+          this.selectedNodes.push(node);
         }
         node.children.forEach(node => {
           n(node);
         });
       }else{
         if (node.checked == true){
-          selectedNodes.push(node.id);
-          _selectedNodes.push(node);
-
+          this.selectedNodes.push(node);
         }
       }
     };
@@ -427,7 +498,54 @@ export class NzTreeComponent implements OnInit, OnChanges {
       }
     });
 
-    this.updateModel(selectedNodes);
+    this.updateModel(this.selectedNodes);
   }
 
+
+  // 方法
+  expandAll(){
+    this.tree.treeModel.expandAll();
+  }
+
+  collapseAll(){
+    this.tree.treeModel.collapseAll();
+  }
+
+  selectAll(){
+    const m = (node)=>{
+      node.data.checked=true;
+      this.updateCheckState(node,node.data.checked);
+      node.children&&node.children.forEach(node=>{
+        m(node);
+      })
+    };
+
+    this.tree.treeModel.roots.forEach((node)=>{
+      m(node);
+    })
+
+    this.refreshSelectedNodes();
+
+  }
+
+  unselectAll(){
+    const m = (node)=>{
+      node.data.checked=false;
+      this.updateCheckState(node,node.data.checked);
+      node.children&&node.children.forEach(node=>{
+        m(node);
+      })
+    };
+
+    this.tree.treeModel.roots.forEach((node)=>{
+      m(node);
+    })
+
+    this.refreshSelectedNodes();
+
+  }
+
+  getSelectedNodes(){
+    return this.selectedNodes;
+  }
 }

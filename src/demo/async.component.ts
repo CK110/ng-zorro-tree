@@ -5,15 +5,17 @@ import {KEYS, lazyloadNode, SELECTEDNODES} from './constant';
   selector: 'demo-async',
   template: `
     <h2>懒加载节点(严格模式)</h2>
+    
     <h3>选中的数据(id 数组): {{selectNodes1 | json}}</h3><br>
     <nz-tree [nzNodes]="nodes"
-             [nzShowLine]="true"
+             [nzShowLine]="false"
              [nzCheckable]="true"
              [nzOptions]="options"
              [nzNodeKeys]="nodeKeys"
              [nzLazyLoad]="true"
              [(ngModel)]="selectNodes1"
-             [nzCheckStrictly]="false" ></nz-tree>
+             [nzCheckStrictly]="true"
+             (nzEvent)="onEvent($event)"></nz-tree>
 
   `
 })
@@ -107,6 +109,10 @@ export class DemoAsyncComponent {
       },1000)
 
     })
+  }
+
+  onEvent(ev: any) {
+    console.log('basic', 'onEvent', ev);
   }
 
 }

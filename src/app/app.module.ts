@@ -9,12 +9,21 @@ import {NzTreeModule} from '../components/index';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {DemoAsyncComponent} from '../demo/async.component';
+import {DemoBasicStrictComponent} from '../demo/basic-strict.component';
+import {DemoTreeSelectBasicComponent} from '../demo/treeselect.basic';
+import {NzTreeSelectModule} from '../components/tree-select/nz-tree-select.module';
+import {DemoTreeSelectStrictBasicComponent} from '../demo/treeselect.basic-strict';
+import {DemoTreeSingleSelectBasicComponent} from '../demo/treeselect-single.basic';
 
 @NgModule({
   declarations: [
     AppComponent,
     DemoBasicComponent,
-    DemoAsyncComponent
+    DemoAsyncComponent,
+    DemoBasicStrictComponent,
+    DemoTreeSelectBasicComponent,
+    DemoTreeSelectStrictBasicComponent,
+    DemoTreeSingleSelectBasicComponent
 
   ],
   imports: [
@@ -24,6 +33,7 @@ import {DemoAsyncComponent} from '../demo/async.component';
     NzTreeModule,
     FormsModule,
     HttpClientModule,
+    NzTreeSelectModule
   ],
   providers: [],
   bootstrap: [AppComponent]
