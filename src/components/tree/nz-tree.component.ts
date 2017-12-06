@@ -207,7 +207,6 @@ export class NzTreeComponent implements OnInit, OnChanges {
   }
 
   updateModel(selected:any[]) {
-    debugger;
     if(selected.length>0){
       const val:any[]=[];
       selected.forEach((node)=>{
