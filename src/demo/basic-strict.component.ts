@@ -33,7 +33,7 @@ export class DemoBasicStrictComponent {
 
   nodes= NODES;
 
-  selectNodes1= ['1'];
+  selectNodes1= ['1','21'];
 
   @ViewChild(NzTreeComponent) tree: NzTreeComponent;
 
