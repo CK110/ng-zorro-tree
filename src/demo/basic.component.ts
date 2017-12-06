@@ -4,23 +4,26 @@ import {NODES} from './constant';
 @Component({
   selector: 'demo-basic',
   template: `
-  <h2>支持复选的树状结构</h2>
+  <h2>普通</h2>
+  {{selected | json}}
+  
   <nz-tree [nzNodes]="nodes"
            [nzCheckable]="true"
-           [nzShowLine]="true"
+           [nzShowLine]="false"
            [nzNodeKeys]="nodeKeys"
-           (nzActivate)="onEvent1($event)"
+           [(ngModel)]="selected"
+           [nzCheckStrictly]="false"
            (nzEvent)="onEvent($event)"></nz-tree>
+    
   `
 })
 export class DemoBasicComponent {
+  selected=['1','3111'];
 
   nodeKeys={
     'pid':'zpid',
     'id':'zid',
     'name':'zname',
-    'checked':'zchecked',
-    'disableCheckbox':'zdisableCheckbox',
   };
   nodes = [];
 
@@ -30,10 +33,7 @@ export class DemoBasicComponent {
   }
 
   onEvent(ev: any) {
-    console.log('basic', 'onEvent', ev);
+    // console.log('basic', 'onEvent', ev);
   }
 
-  onEvent1(ev: any) {
-    console.log('basic222', 'onEvent', ev);
-  }
 }

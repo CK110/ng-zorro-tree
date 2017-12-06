@@ -1,25 +1,29 @@
 import { Component } from '@angular/core';
-import {KEYS, lazyloadNode} from './constant';
-import {NzTreeService} from '../components/providers/nz-tree.service';
-import {HttpClient} from '@angular/common/http';
+import {KEYS, lazyloadNode, SELECTEDNODES} from './constant';
 
 @Component({
   selector: 'demo-async',
   template: `
-  <h2>懒加载节点</h2>
-  <nz-tree [nzNodes]="nodes"
-           [nzShowLine]="true"
-           [nzCheckable]="true"
-           [nzOptions]="options"
-           [nzNodeKeys]="nodeKeys"
-           [nzLazyLoad]="true"
-           (nzEvent)="onEvent($event)"></nz-tree>
+    <h2>懒加载节点(严格模式)</h2>
+    <h3>选中的数据(id 数组): {{selectNodes1 | json}}</h3><br>
+    <nz-tree [nzNodes]="nodes"
+             [nzShowLine]="true"
+             [nzCheckable]="true"
+             [nzOptions]="options"
+             [nzNodeKeys]="nodeKeys"
+             [nzLazyLoad]="true"
+             [(ngModel)]="selectNodes1"
+             [nzCheckStrictly]="false" ></nz-tree>
+
   `
 })
 export class DemoAsyncComponent {
+
   nodeKeys=KEYS;
 
   nodes = lazyloadNode;
+
+  selectNodes1= SELECTEDNODES;
 
   options = {
     getChildren: (node: any) => {
@@ -27,60 +31,82 @@ export class DemoAsyncComponent {
     }
   };
 
-  constructor(public nzTreeService:NzTreeService,public http: HttpClient){
+  constructor(){
 
   }
 
   getData(id:string){
     return new Promise((resolve, reject) => {
-      this.http.get('https://easy-mock.com/mock/5a1bcb8b9144e669fc6e94d6/getlazydata').subscribe(res => {
-        // resolve( this.nzTreeService.generateInnerNodes(res['data'],this.nodeKeys))
-        console.log(this.nzTreeService.generateInnerNodes(res['data'],this.nodeKeys,true));
-
-        // 模拟返回的数据
+      setTimeout(()=>{
         if(id == '2'){
           resolve([
             {
               pid:'2',
-              id:'3',
-              name:'设备控制-1',
-              checked:true,
-              'hasChildren':true
-
-            },
-            {
-              pid:'2',
-              id:'4',
-              name:'设备控制-2',
-              'hasChildren':true
+              id:'21',
+              name:'2-21',
+              hasChildren:true
             },
           ])
         }else if(id == '1'){
           resolve([
             {
               pid:'1',
-              id:'5',
-              name:'设备控制-1',
-              'hasChildren':true
-            }
+              id:'11',
+              name:'1-11',
+              hasChildren:true
+
+            },
+            {
+              pid:'1',
+              id:'12',
+              name:'1-12',
+              hasChildren:true
+
+            },
           ])
-        } else if(id == '4'){
+        } else if(id == '3'){
           resolve([
             {
-              pid:'4',
-              id:'6',
-              name:'设备控制-1',
-              'hasChildren':true
-            }
+              pid:'3',
+              id:'31',
+              name:'3-32',
+              hasChildren:true
+
+            },
+          ])
+        }else if(id == '31'){
+          resolve([
+            {
+              pid:'31',
+              id:'311',
+              name:'3-32-311',
+              hasChildren:true
+
+            },
+            {
+              pid:'31',
+              id:'312',
+              name:'3-32-312',
+              hasChildren:true
+
+            },
+          ])
+        }else if(id == '311'){
+          resolve([
+            {
+              pid:'311',
+              id:'3111',
+              name:'3-32-311-3111',
+              hasChildren:true
+
+            },
           ])
         }else{
           resolve([])
         }
-      });
-    });
+      },1000)
+
+    })
   }
 
-  onEvent(ev: any) {
-
-  }
 }
