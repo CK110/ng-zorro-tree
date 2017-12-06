@@ -98,8 +98,6 @@ export class NzTreeComponent implements OnInit, OnChanges {
   _options: NzTreeOptions;
   _nzNodes:any[];
 
-  _state:ITreeState;
-
   @Input() nzCheckStrictly:boolean =false;
   @Input() nzLazyLoad:boolean = false;
   @Input() nzNodeKeys: NzNodeKeys;
