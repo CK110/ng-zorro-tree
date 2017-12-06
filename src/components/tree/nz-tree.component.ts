@@ -11,7 +11,7 @@ export interface NzNodeKeys{
   pid:string;
   id:string;
   name:string;
-  disableCheckbox:string;
+  disableCheckbox?:string;
 }
 
 @Component({
