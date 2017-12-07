@@ -31,6 +31,7 @@ export interface NzNodeKeys{
                (loadNodeChildren)="fireEvent($event)"
                (changeFilter)="fireEvent($event)"
                (stateChange)="sc($event)">
+      
       <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
         <div
           [class.ant-tree-node]="true"
@@ -82,6 +83,9 @@ export interface NzNodeKeys{
           <tree-node-drop-slot [dropIndex]="node.index + 1" [node]="node.parent"></tree-node-drop-slot>
         </div>
       </ng-template>
+      
+      <!--依赖库中TreeComponent.ts中定义的-->
+      <!--TreeNodeComponent:[ngTemplateOutletContext]="{ $implicit: node, node: node, index: index, templates: templates }">-->
       <ng-template #loadingTemplate let-node let-index="index" let-templates="templates"></ng-template>
     </tree-root>
   `,
@@ -366,16 +370,27 @@ export class NzTreeComponent implements OnInit, OnChanges {
    * @param nodes
    * @returns {Array}
    */
-  private generateNodesByKeys(nodes: any[]){
+  generateNodesByKeys(nodes: any[]){
     if(this.nzNodeKeys){
       const tnodes = [];
       nodes.forEach((node) => {
-        tnodes.push({
-          'pid': node[this.nzNodeKeys['pid']],
-          'id': node[this.nzNodeKeys['id']],
-          'name': node[this.nzNodeKeys['name']],
-          'disableCheckbox': node[this.nzNodeKeys['disableCheckbox']] || false,
-        });
+        if(!this.nzLazyLoad){
+          tnodes.push({
+            'pid': node[this.nzNodeKeys['pid']],
+            'id': node[this.nzNodeKeys['id']],
+            'name': node[this.nzNodeKeys['name']],
+            'disableCheckbox': node[this.nzNodeKeys['disableCheckbox']] || false,
+          });
+        }else{
+          tnodes.push({
+            'pid': node[this.nzNodeKeys['pid']],
+            'id': node[this.nzNodeKeys['id']],
+            'name': node[this.nzNodeKeys['name']],
+            'disableCheckbox': node[this.nzNodeKeys['disableCheckbox']] || false,
+            'hasChildren':true
+          });
+        }
+
       });
       return tnodes;
     }else {
@@ -390,7 +405,6 @@ export class NzTreeComponent implements OnInit, OnChanges {
    * @returns {any}
    */
   private generateNodes(nodes: any[]){
-    console.log('start');
     const rootNodes: any = [];
     const childrenNodes:any =[];
 

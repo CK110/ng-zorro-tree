@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {KEYS, lazyloadNode, SELECTEDNODES} from './constant';
+import {NzTreeComponent} from '../components/tree/nz-tree.component';
 
 @Component({
   selector: 'demo-async',
@@ -27,6 +28,9 @@ export class DemoAsyncComponent {
 
   selectNodes1= SELECTEDNODES;
 
+  @ViewChild(NzTreeComponent) tree: NzTreeComponent;
+
+
   options = {
     getChildren: (node: any) => {
       return this.getData(node.id);
@@ -37,82 +41,83 @@ export class DemoAsyncComponent {
 
   }
 
+
+
   getData(id:string){
+
+    const m = this.tree.generateNodesByKeys(this.getResult(id));
+
+    console.log("generateNodesByKeys",m);
+
     return new Promise((resolve, reject) => {
       setTimeout(()=>{
-        if(id == '2'){
-          resolve([
-            {
-              pid:'2',
-              id:'21',
-              name:'2-21',
-              hasChildren:true
-            },
-          ])
-        }else if(id == '1'){
-          resolve([
-            {
-              pid:'1',
-              id:'11',
-              name:'1-11',
-              hasChildren:true
-
-            },
-            {
-              pid:'1',
-              id:'12',
-              name:'1-12',
-              hasChildren:true
-
-            },
-          ])
-        } else if(id == '3'){
-          resolve([
-            {
-              pid:'3',
-              id:'31',
-              name:'3-32',
-              hasChildren:true
-
-            },
-          ])
-        }else if(id == '31'){
-          resolve([
-            {
-              pid:'31',
-              id:'311',
-              name:'3-32-311',
-              hasChildren:true
-
-            },
-            {
-              pid:'31',
-              id:'312',
-              name:'3-32-312',
-              hasChildren:true
-
-            },
-          ])
-        }else if(id == '311'){
-          resolve([
-            {
-              pid:'311',
-              id:'3111',
-              name:'3-32-311-3111',
-              hasChildren:true
-
-            },
-          ])
-        }else{
-          resolve([])
-        }
+        resolve(m)
       },1000)
-
     })
   }
 
   onEvent(ev: any) {
     console.log('basic', 'onEvent', ev);
+  }
+
+
+  getResult(id:string){
+    if(id == '2'){
+      return [
+        {
+          zpid:'2',
+          zid:'21',
+          zname:'2-21',
+        },
+      ]
+    }else if(id == '1'){
+      return [
+        {
+          zpid:'1',
+          zid:'11',
+          zname:'1-11',
+
+        },
+        {
+          zpid:'1',
+          zid:'12',
+          zname:'1-12',
+
+        },
+      ]
+    } else if(id == '3'){
+      return [
+        {
+          zpid:'3',
+          zid:'31',
+          zname:'3-32',
+
+        },
+      ]
+    }else if(id == '31'){
+      return [
+        {
+          zpid:'31',
+          zid:'311',
+          zname:'3-32-311',
+        },
+        {
+          zpid:'31',
+          zid:'312',
+          zname:'3-32-312',
+        },
+      ]
+    }else if(id == '311'){
+      return[
+        {
+          zpid:'311',
+          zid:'3111',
+          zname:'3-32-311-3111',
+        },
+      ]
+    }else{
+      return []
+    }
   }
 
 }
